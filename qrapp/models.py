@@ -56,9 +56,9 @@ class Register(models.Model):
     visite_time = models.DateTimeField(null=True, blank=True)
     return_time = models.DateTimeField(null=True, blank=True)
     person_name = models.CharField(max_length=100, null=True)
-    phone_no = PhoneNumberField(max_length=15, region='IN', null=True)  # Increased max_length
+    phone_no = PhoneNumberField(max_length=10, region='IN', null=True)
     purpose_of_visit = models.TextField(null=True, blank=True)
-    visit_id = models.CharField(max_length=30, unique=True, editable=False, default=uuid.uuid4)
+    visit_id = models.CharField(unique=True, editable=False, default=uuid.uuid4)
 
     def save(self, *args, **kwargs):
         if not self.visit_id:
