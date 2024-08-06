@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .models import FailedLoginAttempts, Register
 from django.contrib.auth import authenticate, login
 import uuid
+import json
 from django.http import JsonResponse 
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
@@ -100,3 +101,36 @@ def createvisitor(request):
 @csrf_exempt
 def adminscan(request):
     return render(request,'adminscan.html')
+
+@login_required(login_url='adminlogin')
+@csrf_exempt
+def update_time(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            qr_data = data.get('qr_data') 
+
+            if qr_data:
+                data_parts = [line.split(": ") for line in qr_data.strip().split("\n")]
+                visit_id = data_parts[-1][-1].strip() if data_parts else None
+                if visit_id:
+                    try:
+                        print(visit_id)
+                        visitor = Register.objects.get(visit_id=visit_id)
+                        if visitor.return_time is None:
+                            visitor.return_time = timezone.now()
+                            visitor.save()
+                            return JsonResponse({'success': True, 'message': 'Return time updated successfully!'})
+                        else:
+                            return JsonResponse({'success': False, 'message': 'Return time already updated for this visitor.'})
+                    except Register.DoesNotExist:
+                        return JsonResponse({'success': False, 'message': 'Visitor not found.'})
+                else:
+                    return JsonResponse({'success': False, 'message': 'Visit ID not found in QR data.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'QR data is empty.'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON data.'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})

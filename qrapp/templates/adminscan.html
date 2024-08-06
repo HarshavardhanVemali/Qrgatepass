@@ -54,7 +54,9 @@
         .video-container {
             position: relative;
             width: 320px;
-            margin: 15% auto;
+            
+            margin: auto;
+            margin-top: 10%;
             text-align: center;
         }
 
@@ -174,6 +176,10 @@
 
     <div class="background-stars"></div>
 
+    <div id="scan-status"></div> <div class="container">
+        <h1>Scan QR Codes</h1>
+        <div class="section"></div>
+    </div>
     <div class="video-container">
         <video id="qr-video" autoplay muted></video>
         <div class="scanner-line"></div>
@@ -181,10 +187,6 @@
             <div id="qr-data"></div>
             <button id="ok-button">OK</button>
         </div>
-    </div>
-    <div id="scan-status"></div> <div class="container">
-        <h1>Scan QR Codes</h1>
-        <div class="section">
     </div>
     <canvas id="qr-canvas" style="display:none;"></canvas>
 
@@ -238,7 +240,7 @@
                     scanning = false; 
                     qrDataDiv.innerText = code.data; 
                     qrOverlay.style.display = 'block';
-
+                    console.log(code.data)
                     sendDataToDjango(code.data); 
                 } 
             }
@@ -246,14 +248,14 @@
         }
 
         function sendDataToDjango(qrData) {
-            scanStatusDiv.innerHTML = "Processing..."; 
-            fetch('', {
+            scanStatusDiv.innerHTML = "Processing...";
+            fetch('/update_time/', { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': '{{ csrf_token }}' 
                 },
-                body: JSON.stringify({ qr_data: qrData })
+                body: JSON.stringify({ qr_data: qrData }) 
             })
             .then(response => {
                 if (!response.ok) {
@@ -262,7 +264,11 @@
                 return response.json();
             })
             .then(data => {
-                scanStatusDiv.innerHTML = "Success!"; 
+                if (data.success) {
+                    scanStatusDiv.innerHTML = "Success: " + data.message; 
+                } else {
+                    scanStatusDiv.innerHTML = "Error: " + data.message; 
+                }
             })
             .catch(error => {
                 scanStatusDiv.innerHTML = "Error communicating with the server"; 
