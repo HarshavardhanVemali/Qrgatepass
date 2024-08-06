@@ -4,11 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{% static 'css/adminpage.css'%}">
-    <script src="{% static 'js/scripts.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/adminpage.css' %}"> 
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/college_logo.png' %}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.1/dist/jsQR.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <title>MVGR(A) Gate Pass System</title>
     <style>
         .background-stars {
@@ -55,8 +54,7 @@
         .video-container {
             position: relative;
             width: fit-content;
-            margin: 10% auto;
-
+            margin: 10% auto; 
         }
 
         #qr-video {
@@ -77,6 +75,77 @@
             0% { top: 0%; }
             50% { top: 50%; }
             100% { top: 100%; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 5px;
+        }
+
+        .container h1 {
+            color: #ffffff;
+        }
+
+        .section {
+            background-color: #ffffff;
+            padding: 50px 30px;
+            border: 1.5px solid #b2b2b2;
+            border-radius: 0.25em;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.25);
+        }
+
+        #my-qr-reader {
+            padding: 20px !important;
+            border: 1.5px solid #b2b2b2 !important;
+            border-radius: 8px;
+        }
+
+        #my-qr-reader img[alt="Info icon"] {
+            display: none;
+        }
+
+        #my-qr-reader img[alt="Camera based scan"] {
+            width: 100px !important;
+            height: 100px !important;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: 1px solid #b2b2b2;
+            outline: none;
+            border-radius: 0.25em;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            background-color: #008000ad;
+            transition: 0.3s background-color;
+        }
+
+        button:hover {
+            background-color: #008000;
+        }
+
+        #html5-qrcode-anchor-scan-type-change {
+            text-decoration: none !important;
+            color: #1d9bf0;
+        }
+
+        video {
+            width: 100% !important;
+            border: 1px solid #b2b2b2 !important;
+            border-radius: 0.25em;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -104,21 +173,84 @@
             </ul>
         </div>
     </div>
-    <div class="background-stars"></div>
-    <div id="overlay">
-        <div id="overlay-content">
-            <p id="overlay-message"></p>
-            <button onclick="hideOverlay()" id="closebutton">Close</button>
-        </div>
-    </div>
+
+    <div class="background-stars"></div> 
+
     <div class="video-container">
-        <video id="qr-video" width="320" height="240"></video>
-        <div class="scanner-line" id="scanner-line"></div>
+        <video id="qr-video" width="320" height="240" autoplay muted></video>
+        <div class="scanner-line"></div> 
     </div>
     <canvas id="qr-canvas" style="display:none;"></canvas>
-    <div id="qr-result"></div>
+    <div class="container">
+        <h1>Scan QR Codes</h1>
+        <div class="section">
+            <div id="my-qr-reader"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="result-container" id="qr-result"></div> 
+    </div>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <script>
+        const video = document.getElementById('qr-video');
+        const canvas = document.getElementById('qr-canvas');
+        const context = canvas.getContext('2d');
+        const resultDiv = document.getElementById('qr-result');
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(stream => {
+                video.srcObject = stream;
+                video.setAttribute('playsinline', true);
+                video.play();
+                requestAnimationFrame(scanQRCode);
+            });
+
+        function scanQRCode() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (code) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+
+                    resultDiv.innerHTML = 'QR Code Data: <br>' + code.data;
+
+                    sendDataToDjango(code.data);
+                }
+            }
+            requestAnimationFrame(scanQRCode);
+        }
+
+        function sendDataToDjango(qrData) {
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ qr_data: qrData })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                resultDiv.innerHTML += '<br>Server Response: ' + data.message;
+            })
+            .catch(error => {
+                console.error('Error sending QR data:', error);
+                resultDiv.innerHTML += '<br>Error communicating with server.';
+            });
+        }
+
         function createStars() {
             const starContainer = document.querySelector('.background-stars');
             const numberOfStars = 200;
@@ -138,52 +270,6 @@
             createStars();
         });
     </script>
-    <script>
-        const video = document.getElementById('qr-video');
-        const canvas = document.getElementById('qr-canvas');
-        const context = canvas.getContext('2d');
-        const resultDiv = document.getElementById('qr-result');
-        const scannerLine = document.getElementById('scanner-line');
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }) // Use rear-facing camera
-            .then((stream) => {
-                video.srcObject = stream;
-                video.setAttribute("playsinline", true); // Required for iOS
-                video.play();
-                requestAnimationFrame(scanQRCode);
-            })
-            .catch((err) => {
-                console.error("Error accessing camera: ", err);
-            });
-
-        function scanQRCode() {
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (code) {
-                    resultDiv.innerHTML = 'QR Code found: <br>' + code.data;
-                    stopVideoStream();
-                }
-            }
-            requestAnimationFrame(scanQRCode);
-        }
-
-        function stopVideoStream() {
-            const stream = video.srcObject;
-            const tracks = stream.getTracks();
-
-            tracks.forEach(function(track) {
-                track.stop();
-            });
-
-            video.srcObject = null;
-            scannerLine.style.display = 'none';
-        }
-    </script>
+    <script src="{% static 'js/scripts.js' %}"></script> 
 </body>
 </html>
