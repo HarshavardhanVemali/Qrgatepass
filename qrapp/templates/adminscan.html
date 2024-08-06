@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/adminpage.css' %}"> 
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/college_logo.png' %}">
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.1/dist/jsQR.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@latest/dist/jsQR.min.js"></script>
     <title>MVGR(A) Gate Pass System</title>
     <style>
         .background-stars {
@@ -101,15 +100,6 @@
             border-radius: 8px;
         }
 
-        #my-qr-reader img[alt="Info icon"] {
-            display: none;
-        }
-
-        #my-qr-reader img[alt="Camera based scan"] {
-            width: 100px !important;
-            height: 100px !important;
-        }
-
         button {
             padding: 10px 20px;
             border: 1px solid #b2b2b2;
@@ -126,11 +116,6 @@
 
         button:hover {
             background-color: #008000;
-        }
-
-        #html5-qrcode-anchor-scan-type-change {
-            text-decoration: none !important;
-            color: #1d9bf0;
         }
 
         video {
@@ -190,43 +175,56 @@
     <div class="container">
         <div class="result-container" id="qr-result"></div> 
     </div>
-    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <script>
         const video = document.getElementById('qr-video');
         const canvas = document.getElementById('qr-canvas');
         const context = canvas.getContext('2d');
         const resultDiv = document.getElementById('qr-result');
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .then(stream => {
-                video.srcObject = stream;
-                video.setAttribute('playsinline', true);
-                video.play();
-                requestAnimationFrame(scanQRCode);
-            });
-
+    
+        // Function to initialize the camera
+        function initializeCamera() {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(stream => {
+                    console.log('Camera permission granted and stream obtained.');
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true);
+                    video.play();
+                    requestAnimationFrame(scanQRCode);
+                })
+                .catch(err => {
+                    console.error('Error accessing camera:', err);
+                    resultDiv.innerHTML = 'Error accessing camera: ' + err.message;
+                });
+        }
+    
+        // Function to scan QR code
         function scanQRCode() {
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                console.log('Video feed ready.');
                 canvas.height = video.videoHeight;
                 canvas.width = video.videoWidth;
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
+    
                 const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 const code = jsQR(imageData.data, imageData.width, imageData.height);
-
+    
                 if (code) {
+                    console.log('QR Code detected:', code.data);
                     video.srcObject.getTracks().forEach(track => track.stop());
-
                     resultDiv.innerHTML = 'QR Code Data: <br>' + code.data;
-
                     sendDataToDjango(code.data);
+                } else {
+                    console.log('No QR code detected.');
+                    resultDiv.innerHTML = 'No QR code detected. Please try again.';
                 }
             }
             requestAnimationFrame(scanQRCode);
         }
-
+    
+        // Function to send QR data to Django backend
         function sendDataToDjango(qrData) {
+            console.log('Sending QR data to Django:', qrData);
             fetch('', {
                 method: 'POST',
                 headers: {
@@ -250,26 +248,30 @@
                 resultDiv.innerHTML += '<br>Error communicating with server.';
             });
         }
-
+    
+        // Function to create stars for background effect
         function createStars() {
             const starContainer = document.querySelector('.background-stars');
             const numberOfStars = 200;
-
+    
             for (let i = 0; i < numberOfStars; i++) {
                 const star = document.createElement('div');
                 star.classList.add('star');
                 star.style.top = `${Math.random() * 100}%`;
                 star.style.left = `${Math.random() * 100}%`;
                 star.style.animationDelay = `${Math.random() * 3}s`;
-
+    
                 starContainer.appendChild(star);
             }
         }
-
+    
+        // Initialize on document load
         document.addEventListener('DOMContentLoaded', () => {
             createStars();
+            initializeCamera(); // Start the camera initialization process
         });
     </script>
+    
     <script src="{% static 'js/scripts.js' %}"></script> 
 </body>
 </html>
