@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/adminpage.css' %}"> 
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/college_logo.png' %}">
     <script src="https://cdn.jsdelivr.net/npm/jsqr@latest/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <title>MVGR(A) Gate Pass System</title>
     <style>
         .background-stars {
@@ -182,8 +183,8 @@
         const context = canvas.getContext('2d');
         const resultDiv = document.getElementById('qr-result');
     
-        // Function to initialize the camera
         function initializeCamera() {
+            console.log('Initializing camera...');
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
                 .then(stream => {
                     console.log('Camera permission granted and stream obtained.');
@@ -198,7 +199,6 @@
                 });
         }
     
-        // Function to scan QR code
         function scanQRCode() {
             if (video.readyState === video.HAVE_ENOUGH_DATA) {
                 console.log('Video feed ready.');
@@ -222,7 +222,6 @@
             requestAnimationFrame(scanQRCode);
         }
     
-        // Function to send QR data to Django backend
         function sendDataToDjango(qrData) {
             console.log('Sending QR data to Django:', qrData);
             fetch('', {
@@ -249,7 +248,6 @@
             });
         }
     
-        // Function to create stars for background effect
         function createStars() {
             const starContainer = document.querySelector('.background-stars');
             const numberOfStars = 200;
@@ -265,8 +263,8 @@
             }
         }
     
-        // Initialize on document load
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM content loaded.');
             createStars();
             initializeCamera(); // Start the camera initialization process
         });
