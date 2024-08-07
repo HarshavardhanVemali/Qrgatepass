@@ -6,6 +6,8 @@ urlpatterns = [
     path('',views.adminlogin,name='adminlogin'),
     path('adminpage/',views.adminpage,name='adminpage'),
     path('update_time/',views.update_time,name='update_time'),
+    path('adminvisitors/',views.adminvisitors,name='adminvisitors'),
+    path('get_visitors/',views.get_visitors,name='get_visitors'),
     path('adminscan/',views.adminscan,name='adminscan'),
     path('createvisitor/',views.createvisitor,name='createvisitor'),
 ]

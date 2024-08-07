@@ -134,3 +134,29 @@ def update_time(request):
             return JsonResponse({'success': False, 'message': 'Invalid JSON data.'})
 
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
+@login_required(login_url='adminlogin')
+@csrf_exempt
+def adminvisitors(request):
+    return render(request,'adminvisitors.html')
+
+@login_required(login_url='adminlogin')
+@csrf_exempt
+def get_visitors(request):
+    if request.method == 'POST':
+        registers = Register.objects.all()
+
+        register_data = []
+        for register in registers:
+            register_data.append({
+                'visit_id': register.visit_id,
+                'person_name': register.person_name,
+                'phone_no': str(register.phone_no),
+                'purpose_of_visit': register.purpose_of_visit,
+                'visite_time': register.visite_time,
+                'return_time': register.return_time if register.return_time else "Not updated"
+            })
+
+        return JsonResponse({'success': True, 'register_data': register_data})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method.'})
