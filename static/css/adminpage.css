@@ -203,3 +203,25 @@ header {
 #closebutton:hover{
     background-color: red;
 }
+.logoutbutton {
+    position: absolute;
+    right: 10px;
+    text-align: right;
+}
+
+#logout-button {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 5px 10px; 
+    background-color: #ea4335;
+    transition: background-color 0.2s ease; 
+    margin-top: 10px;
+}
+
+#logout-button:hover {
+    background-color: #fff;
+    color: #ea4335;
+}

@@ -65,6 +65,10 @@ def adminlogin(request):
             device_id = get_device_id(request)
             set_device_cookie(response, device_id)
         return response
+@login_required(login_url="adminlogin")
+def admin_logout_view(request):
+    logout(request)
+    return redirect('adminlogin')
 
 @login_required(login_url='adminlogin')
 def adminpage(request):
@@ -82,7 +86,6 @@ def createvisitor(request):
                 person_name=person_name,
                 phone_no=person_phone, 
                 purpose_of_visit=purpose,
-                visite_time=timezone.now()
             )
             visitor.save()
             return JsonResponse({'success': True, 'visitor_data': {
@@ -118,7 +121,7 @@ def update_time(request):
                         print(visit_id)
                         visitor = Register.objects.get(visit_id=visit_id)
                         if visitor.return_time is None:
-                            visitor.return_time = timezone.now()
+                            visitor.return_time = timezone.localtime(timezone.now())
                             visitor.save()
                             return JsonResponse({'success': True, 'message': 'Return time updated successfully!'})
                         else:

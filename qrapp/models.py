@@ -1,6 +1,6 @@
 from django.db import models
-import time
 import uuid
+from django.utils import timezone
 
 from phonenumbers import (
     PhoneNumber,
@@ -53,7 +53,7 @@ class PhoneNumberField(models.CharField):
         return str(value) if value else ''
 
 class Register(models.Model):
-    visite_time = models.DateTimeField(null=True, blank=True)
+    visite_time = models.DateTimeField(auto_now_add=True,null=True)
     return_time = models.DateTimeField(null=True, blank=True)
     person_name = models.CharField(max_length=100, null=True)
     phone_no = PhoneNumberField(max_length=15, region='IN', null=True)
@@ -62,8 +62,8 @@ class Register(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.visit_id:
-            timestamp = str(int(time.time() * 1000000))
-            year_month_date = time.strftime("%Y%m%d")
+            timestamp = str(int(timezone.time() * 1000000))
+            year_month_date = timezone.strftime("%Y%m%d")
             self.visit_id = f"{year_month_date}-{timestamp}"
         super().save(*args, **kwargs)
         
