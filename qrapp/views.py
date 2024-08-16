@@ -7,7 +7,8 @@ import uuid
 import json
 from django.http import JsonResponse 
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import timezone
+import pytz
+from datetime import datetime
 
 MAX_FAILED_ATTEMPTS = 3
 
@@ -80,25 +81,37 @@ def createvisitor(request):
     if request.method == 'POST':
         person_name = request.POST.get('person_name')
         person_phone = request.POST.get('person_phone')
-        purpose = request.POST.get('purpose')  
+        selected_purpose = request.POST.get('purpose')  
+        if selected_purpose == 'Others': 
+            purpose = request.POST.get('other-reason')  
+        else:
+            purpose = selected_purpose 
+        print(purpose)
         try:
+            indian_timezone = pytz.timezone('Asia/Kolkata') 
+            current_time_in_india = datetime.now(indian_timezone)
             visitor = Register(
                 person_name=person_name,
-                phone_no=person_phone, 
+                phone_no=person_phone,
                 purpose_of_visit=purpose,
+                visite_time=current_time_in_india
             )
             visitor.save()
-            return JsonResponse({'success': True, 'visitor_data': {
-                'name': visitor.person_name,
-                'phone': str(visitor.phone_no),  
-                'visit_id': visitor.visit_id,
-                'visit_time':visitor.visite_time,
-            }, 'message': 'Visitor registered successfully!'})
+            return JsonResponse({
+                'success': True,
+                'visitor_data': {
+                    'name': visitor.person_name,
+                    'phone': str(visitor.phone_no),
+                    'visit_id': visitor.visit_id,
+                    'visit_time': visitor.visite_time.strftime('%Y-%m-%d %H:%M:%S') 
+                },
+                'message': 'Visitor registered successfully!'
+            })
 
-        except Exception as e: 
+        except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
 
-    return redirect('adminpage') 
+    return redirect('adminpage')
 
 @login_required(login_url='adminlogin')
 @csrf_exempt
@@ -120,8 +133,10 @@ def update_time(request):
                     try:
                         print(visit_id)
                         visitor = Register.objects.get(visit_id=visit_id)
+                        indian_timezone = pytz.timezone('Asia/Kolkata') 
+                        current_time_in_india = datetime.now(indian_timezone)
                         if visitor.return_time is None:
-                            visitor.return_time = timezone.localtime(timezone.now())
+                            visitor.return_time = current_time_in_india
                             visitor.save()
                             return JsonResponse({'success': True, 'message': 'Return time updated successfully!'})
                         else:
@@ -156,10 +171,15 @@ def get_visitors(request):
                 'person_name': register.person_name,
                 'phone_no': str(register.phone_no),
                 'purpose_of_visit': register.purpose_of_visit,
-                'visite_time': register.visite_time,
+                'visite_time': register.visite_time.isoformat(),
                 'return_time': register.return_time if register.return_time else "Not updated"
             })
 
         return JsonResponse({'success': True, 'register_data': register_data})
     else:
         return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+
+def handler404(request, exception):
+    print("404 handler reached2")
+    return render(request, '404.html', status=404)

@@ -93,9 +93,9 @@ header {
     margin: 100px auto; 
     padding: 20px;
     padding-right: 20px;
-    border-radius: 8px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #181818;
+    border-radius: 20px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    background-color: #333;
     color: #fff;
     z-index: 9999;
     
@@ -104,6 +104,7 @@ header {
 .registerform form {
     display: flex;
     flex-direction: column;
+    padding: 40px;
     
 }
 
@@ -114,8 +115,9 @@ header {
 
 .registerform input[type="text"],
 .registerform input[type="tel"],
-.registerform textarea {
-    width: 90%;
+.registerform textarea ,
+.registerform select{
+    width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid #333; 
@@ -125,8 +127,9 @@ header {
     color: #fff;
 }
 
+
 .registerform input:focus,
-.registerform textarea:focus {
+.registerform textarea:focus,.registerform select:focus {
     outline: none; 
     border-color: #ffb6c1; 
     box-shadow: 0px 0px 10px rgba(255, 182, 193, 0.8); 

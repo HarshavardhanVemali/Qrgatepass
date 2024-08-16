@@ -82,6 +82,36 @@
         td {
             color: #fff; 
         }
+        #filterContainer {
+            display: flex;
+            align-items: center; 
+            justify-content: center; 
+            margin-top: 60px; 
+            margin-bottom: 20px;
+            margin-right: 30px; 
+
+        }
+
+        #filterDate {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px; 
+            margin-right: 10px;
+        }
+
+        #filterContainer button { 
+            padding: 8px 15px; 
+            background-color: #007BFF; 
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        #filterContainer button:hover { 
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -122,6 +152,14 @@
 
     <div class="container">
         <h2>Visitor Records</h2>
+
+        <div id="filterContainer">
+            <label for="filterDate" style="margin-right: 10px; color: white;">Filter by Date:</label> 
+            <input type="date" id="filterDate">
+            <button onclick="filterVisitors()">Filter</button>
+            <button onclick="downloadreport()">Download Report</button>
+        </div>
+
         <div id="visitorTableContainer">
             <div id="visitorTable"></div>
         </div>
@@ -191,7 +229,40 @@
                 starContainer.appendChild(star);
             }
         }
+        function filterVisitors() {
+            const filterDate = document.getElementById('filterDate').value;
+            const table = document.querySelector('table');
+            const rows = table.querySelectorAll('tbody tr');
+            let noVisitorsFound = true; 
 
+            rows.forEach(row => {
+                const dateCell = row.querySelector('td:nth-child(5)'); 
+                const rowDate = new Date(dateCell.textContent);
+
+                if (!isNaN(rowDate)) { 
+                    const filterYear = filterDate ? new Date(filterDate).getFullYear() : null;
+                    const filterMonth = filterDate ? new Date(filterDate).getMonth() : null; 
+                    const filterDay = filterDate ? new Date(filterDate).getDate() : null;
+
+                    const yearMatch = filterYear === null || rowDate.getFullYear() === filterYear;
+                    const monthMatch = filterMonth === null || rowDate.getMonth() === filterMonth; 
+                    const dayMatch = filterDay === null || rowDate.getDate() === filterDay; 
+
+                    if (yearMatch && monthMatch && dayMatch) {
+                        row.style.display = 'table-row';
+                        noVisitorsFound = false;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                } else {
+                    console.error("Invalid date format:", dateCell.textContent);
+                    row.style.display = 'none'; 
+                }
+            });
+            if (noVisitorsFound) {
+                table.innerHTML = '<p style="color:white;">No visitor records found for the selected date.</p>';
+            }
+        }
         document.addEventListener('DOMContentLoaded', () => {
             createStars();
             getvisitors();

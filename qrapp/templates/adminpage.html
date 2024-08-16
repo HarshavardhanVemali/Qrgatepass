@@ -121,13 +121,19 @@
     <div class="registerform">
         <form id="registration-form" action="{% url 'createvisitor' %}" method="post">
             <label for="person_name">Person Name:</label>
-            <input type="text" id="person_name" name="person_name" required>
+            <input type="text" id="person_name" name="person_name" placeholder="Name" required>
         
             <label for="person_phone">Phone Number:</label>
-            <input type="tel" id="person_phone" name="person_phone" pattern="[0-9]{10}" required>
+            <input type="tel" id="person_phone" name="person_phone"  placeholder="Phone Number" pattern="[0-9]{10}" required>
         
             <label for="purpose">Purpose of Visit:</label>
-            <textarea id="purpose" name="purpose" rows="4" required></textarea>
+              <select id="purpose" name="purpose" required>
+                <option value="" disabled selected>Select Purpose</option>
+                <option value="Fee Payment">Fee Payment</option>
+                <option value="To Meet Faculty">To Meet Faculty</option>
+                <option value="Others">Others</option>
+                </select>
+                <textarea id="other-reason" name="other-reason" rows="4" style="display: none;" placeholder="Please specify other reason"></textarea>
         
             <div id="submitbutton">
                 <button type="submit">Print</button>
@@ -188,30 +194,39 @@
     }
 
     document.getElementById('registration-form').addEventListener('submit', function(event) {
-        event.preventDefault();
+        event.preventDefault(); 
         document.getElementById('loading-overlay').style.display = 'block';
 
         const formData = new FormData(event.target);
         fetch(event.target.action, {
-                method: event.target.method,
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('loading-overlay').style.display = 'none';
+            method: event.target.method,
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading-overlay').style.display = 'none';
 
-                if (data.success) {
-                    showOverlay(data.visitor_data); 
-                    event.target.reset();
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('loading-overlay').style.display = 'none';
-                alert('An error occurred. Please try again later.');
-            });
+            if (data.success) {
+                showOverlay(data.visitor_data);
+                event.target.reset();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert('An error occurred. Please try again later.');
+        });
+    });
+
+    document.getElementById('purpose').addEventListener('change', function() {
+        const otherReasonTextarea = document.getElementById('other-reason');
+        if (this.value === 'Others') { 
+            otherReasonTextarea.style.display = 'block'; 
+        } else {
+            otherReasonTextarea.style.display = 'none';
+        }
     });
 
     function createStars() {
