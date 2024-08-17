@@ -6,6 +6,7 @@ packaging==24.1
 parse==1.20.2
 phonenumbers==8.13.40
 psycopg2-binary==2.9.9
+pytz==2024.1
 sqlparse==0.5.1
 typing_extensions==4.12.2
 whitenoise==6.7.0
