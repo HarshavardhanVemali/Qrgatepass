@@ -9,105 +9,29 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/college_logo.png' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>MVGR(A) Gate Pass System</title>
-    <style>
-        .background-stars {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        .star {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            background-color: white;
-            border-radius: 50%;
-            opacity: 0;
-            animation: twinkle 3s infinite alternate; 
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); 
-        }
-
-        .star:nth-child(-n+10) { 
-            width: 3px; 
-            height: 3px; 
-        }
-
-        .star:nth-child(n+11):nth-child(-n+20) { 
-            width: 2px;
-            height: 2px;
-        }
-
-        @keyframes twinkle {
-            0% { 
-                opacity: 0; 
-                transform: scale(0.8); 
-            }
-            100% { 
-                opacity: 1; 
-                transform: scale(1); 
-            }
-        }
-
-        #loading-overlay {
-            display: none; 
-            position: fixed; 
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.7); 
-            z-index: 999; 
-        }
-
-        #loading {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .loader {
-            border: 8px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 8px solid #3498db;
-            width: 30px;
-            height: 30px;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    
 </head>
 <body>
     <header>
         <div class="container">
             <div id="college_title">
-                <div id="college_logo">
-                    <a href="https://www.mvgrce.com/" target="_blank">
-                        <img src="{% static 'images/college_logo.png' %}" alt="college_logo">
-                    </a>
-                </div>
-                <div id="college_sub_title">
-                    <h1>Maharaj Vijayaram Gajapathi Raj College of Engineering (Autonomous)</h1>
-                </div>
+                <a href="https://www.mvgrce.com/" target="_blank">
+                    <img src="{% static 'images/college_logo.png' %}" alt="college_logo">
+                </a> 
+                <h1>Maharaj Vijayaram Gajapathi Raj College of Engineering (Autonomous)</h1>
             </div>
         </div>
-    </header>
-    <div class="nav-bar">
+        <div class="nav-bar">
         <div class="navbarforlarge">
             <ul id="navbarlinksforlarge">
-                <li><a class="nav-link" href="{% url 'adminpage' %}"><span>Register</span></a></li>
+                <li><a class="nav-link active" href="{% url 'adminpage' %}"><span>Register</span></a></li>
                 <li><a class="nav-link" href="{% url 'adminvisitors' %}"><span>Visitors</span></a></li>  
                 <li><a class="nav-link" href="{% url 'adminscan' %}"><span>Scan</span></a></li> 
             </ul>
         </div>
     </div>
+    </header>
+    
     <div class="logoutbutton" onclick="window.location.href='{% url 'adminlogout' %}'">
         <button id="logout-button" onclick="window.location.href='{% url 'adminlogout' %}'">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -118,30 +42,40 @@
             <span>Logout</span>
         </button>
     </div>
+    <h2 style="text-align: center;margin-top: 50px;">
+        Register Visitor
+    </h2>
     <div class="registerform">
         <form id="registration-form" action="{% url 'createvisitor' %}" method="post">
+            {% csrf_token %} 
             <label for="person_name">Person Name:</label>
             <input type="text" id="person_name" name="person_name" placeholder="Name" required>
-        
+
             <label for="person_phone">Phone Number:</label>
-            <input type="tel" id="person_phone" name="person_phone"  placeholder="Phone Number" pattern="[0-9]{10}" required>
-        
+            <input type="tel" id="person_phone" name="person_phone" placeholder="Phone Number" pattern="[0-9]{10}"
+                required>
+
             <label for="purpose">Purpose of Visit:</label>
-              <select id="purpose" name="purpose" required>
+            <select id="purpose" name="purpose" required>
                 <option value="" disabled selected>Select Purpose</option>
                 <option value="Fee Payment">Fee Payment</option>
                 <option value="To Meet Faculty">To Meet Faculty</option>
                 <option value="Others">Others</option>
-                </select>
-                <textarea id="other-reason" name="other-reason" rows="4" style="display: none;" placeholder="Please specify other reason"></textarea>
-        
-            <div id="submitbutton">
-                <button type="submit">Print</button>
+            </select>
+            <textarea id="other-reason" name="other-reason" rows="4" style="display: none;"
+                placeholder="Please specify other reason"></textarea>
+
+            <div id="submitbutton" style="gap: 10px;">
+                <button type="submit" style="display: flex;align-items: center;gap:5px;">Print<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer" viewBox="0 0 16 16">
+                    <path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
+                    <path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1"/>
+                  </svg></button>
+                <button type="submit" style="display: flex;align-items: center;gap:5px;background-color: #25D366;">Whatsapp<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+                    <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                  </svg></button>
             </div>
         </form>
     </div>
-    <div class="background-stars"></div>
-
     <div id="loading-overlay">
         <div id="loading">
             <div class="loader"></div>
@@ -155,7 +89,14 @@
         </div>
     </div>
 </body>
-
+<footer class="footer position-absolute">
+    <div>
+        <p>&copy; 2024. All rights reserved to <a href="https://harshavardhanvemali.netlify.app/" target="_blank">V.Harsha Vardhan(22331A4765)</a>&nbsp; | Department Of Data Engineering.</p>
+    </div>
+    <div>
+        <p>MVGR</p>
+    </div>
+</footer>
 <script>
     function generateQRCode(text) {
         document.getElementById('qrcode').innerHTML = "";
@@ -170,28 +111,41 @@
     }
 
     function showOverlay(visitorData) {
-        const overlay = document.getElementById('overlay');
-        const overlayMessage = document.getElementById('overlay-message');
-        
-        const logoUrl = "{% static 'images/college_logo.png' %}";
+    const overlay = document.getElementById('overlay');
+    const overlayMessage = document.getElementById('overlay-message');
+    const logoUrl = "{% static 'images/college_logo.png' %}";
 
-        overlayMessage.innerHTML = `
-            <img src="${logoUrl}" width="40px" height="40px">
-            <h3>MVGR College Of Engineering</h3>
-            <p><strong>Name:</strong> ${visitorData.name}</p>
-            <p><strong>Phone Number:</strong> ${visitorData.phone}</p>
-            <p><strong>Visit ID:</strong> ${visitorData.visit_id}</p>
-            <p><strong>Visit Time:</strong> ${visitorData.visit_time}</p>
-            <p>QR Code:</p>
-            <div id="qrcode" style="margin: auto; width: 256px; height: 256px;"></div>
-        `;
-        overlay.style.display = 'flex'; 
-        generateQRCode(`Name: ${visitorData.name}\nPhone: ${visitorData.phone}\nVisit ID: ${visitorData.visit_id}`);
-    }
+    overlayMessage.innerHTML = `
+        <img src="${logoUrl}" width="40px" height="40px">
+        <h3>MVGR College Of Engineering</h3>
+        <p><strong>Name:</strong> ${visitorData.name}</p>
+        <p><strong>Phone Number:</strong> ${visitorData.phone}</p>
+        <p><strong>Visit ID:</strong> ${visitorData.visit_id}</p>
+        <p><strong>Visit Time:</strong> ${visitorData.visit_time}</p>
+        <p>QR Code:</p>
+        <div id="qrcode" style="margin: auto; width: 256px; height: 256px;"></div>
+        <a id="whatsapp-link" href="#" target="_blank" style="display: none;">Send to WhatsApp</a> 
+    `;
 
-    function hideOverlay() {
-        document.getElementById('overlay').style.display = 'none';
-    }
+    overlay.style.display = 'flex'; 
+    generateQRCode(`Name: ${visitorData.name}\nPhone: ${visitorData.phone}\nVisit ID: ${visitorData.visit_id}`);
+
+    setTimeout(function() {
+        const qrCodeCanvas = document.querySelector('#qrcode canvas');
+        if (qrCodeCanvas) {
+            const qrCodeDataURL = qrCodeCanvas.toDataURL();
+            const whatsappLink = document.getElementById('whatsapp-link');
+            whatsappLink.href = `https://wa.me/?text=*MVGR%20College%20Visitor%20Pass*%0A%0A*Name:*%20${encodeURIComponent(visitorData.name)}%0A*Phone:*%20${encodeURIComponent(visitorData.phone)}%0A*Visit%20ID:*%20${encodeURIComponent(visitorData.visit_id)}&image=${encodeURIComponent(qrCodeDataURL)}`;
+            whatsappLink.style.display = 'block'; 
+        } else {
+            console.error("QR code canvas element not found!");
+        }
+    }, 1000); 
+}
+
+function hideOverlay() {
+    document.getElementById('overlay').style.display = 'none';
+}
 
     document.getElementById('registration-form').addEventListener('submit', function(event) {
         event.preventDefault(); 
@@ -227,25 +181,6 @@
         } else {
             otherReasonTextarea.style.display = 'none';
         }
-    });
-
-    function createStars() {
-        const starContainer = document.querySelector('.background-stars');
-        const numberOfStars = 200;
-
-        for (let i = 0; i < numberOfStars; i++) {
-            const star = document.createElement('div');
-            star.classList.add('star');
-            star.style.top = `${Math.random() * 100}%`;
-            star.style.left = `${Math.random() * 100}%`;
-            star.style.animationDelay = `${Math.random() * 3}s`;
-
-            starContainer.appendChild(star);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        createStars();
     });
 </script>
 </html>

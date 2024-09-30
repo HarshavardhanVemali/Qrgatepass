@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-2n=ks6h*a185(uv)vjwo!f42mhj)$^@0w!^ms!we7q3jm=9os*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-DATABASES["default"]=dj_database_url.parse("postgresql://qrgatepass_user:Zy56TtCvth1ftmm2uT95knsjRXdgb9wa@dpg-cqp2qrggph6c73ffucm0-a.oregon-postgres.render.com/qrgatepass")
+DATABASES["default"]=dj_database_url.parse("postgresql://qrmanagement_user:tD5a37p8ie5uInn6jak2MDfyXjbPJTvx@dpg-crtaa468ii6s73ejjon0-a.oregon-postgres.render.com/qrmanagement")
 
 
 # Password validation

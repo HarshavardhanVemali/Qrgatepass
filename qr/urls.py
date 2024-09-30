@@ -16,6 +16,7 @@ urlpatterns = [
     path('adminscan/',views.adminscan,name='adminscan'),
     path('adminlogout/',views.admin_logout_view,name='adminlogout'),
     path('createvisitor/',views.createvisitor,name='createvisitor'),
+    path('downloadreport/',views.download_overall_report,name='downloadreport'),
 ]
 def custom_page_not_found_view(request, exception):
     print("404 handler reached1.") 

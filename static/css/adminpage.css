@@ -1,9 +1,11 @@
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: "Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     margin: 0;
     padding: 0;
-    background-color: #f5f5f5; 
-    background-color: #000;
+    min-height: 100vh;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    background-image: url('https://www.transparenttextures.com/patterns/white-wall.png');
 }
 
 header {
@@ -22,38 +24,30 @@ header {
 
 #college_title {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    gap: 50px;
+    text-align: center;
     width: 100%;
     padding: 10px 0;
-    background: linear-gradient(to right, #fafad2, #ffb6c1); 
+    padding-bottom: 0px;
+    background-color: white;
 }
 
-#college_logo {
-    flex: 0 1 150px; 
-    margin-right: 20px;
-}
-
-#college_logo img {
-    margin-left: 40px;
-    max-height: 80px; 
+#college_title img {
+    margin-left: 0px;
+    max-height: 70px; 
     width: auto; 
 }
 
-#college_sub_title {
-    flex-grow: 1;
-    text-align: center;
-}
-
-#college_sub_title h1 {
-    font-size: 2em; 
-    font-weight: bold;
+#college_title h1 {
+    font-size: 1.7em; 
     margin: 0;
-    color: #333; 
+    color: #000; 
 }
 
 .nav-bar {
-    background-color: #333;
+    color: #000;
     padding: 15px 0;
 }
 
@@ -75,92 +69,92 @@ header {
 
 .nav-link {
     text-decoration: none;
-    color: #fff;
-    font-size: 1.2em; 
+    color: #555;
+    font-weight: 100 !important;
+    font-size: 1.04em; 
     padding: 10px 15px;
-    transition: background-color 0.3s, color 0.3s;
-    border-radius: 5px; 
-}
 
-.nav-link:hover {
-    border: 1px solid #ffb6c1; 
-    color: #fff; 
-    border-radius: 5px; 
+}
+.nav-link:hover{
+    border-bottom: 2px solid #4285f4;
+    color: #000;
+
+}
+.nav-link.active { 
+    color: #000;
+    border-bottom: 2px solid #4285f4;
 }
 
 .registerform {
     max-width: 600px;
-    margin: 100px auto; 
-    padding: 20px;
-    padding-right: 20px;
-    border-radius: 20px;
+    margin: 50px auto;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    color: #333;
+    background-color: rgba(255, 255, 255, 0.8);
     box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-    background-color: #333;
-    color: #fff;
-    z-index: 9999;
-    
 }
 
 .registerform form {
     display: flex;
     flex-direction: column;
-    padding: 40px;
-    
 }
 
 .registerform label {
     margin-bottom: 8px;
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .registerform input[type="text"],
 .registerform input[type="tel"],
-.registerform textarea ,
-.registerform select{
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #333; 
+.registerform textarea,
+.registerform select {
+    width: 550px;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
     border-radius: 5px;
-    background-color: #1a1a1a; 
+    background-color: #fff;
     font-size: 1em;
-    color: #fff;
+    color: #333;
 }
-
-
+.registerform select{
+    width:575px;
+}
 .registerform input:focus,
-.registerform textarea:focus,.registerform select:focus {
-    outline: none; 
-    border-color: #ffb6c1; 
-    box-shadow: 0px 0px 10px rgba(255, 182, 193, 0.8); 
+.registerform textarea:focus,
+.registerform select:focus {
+    outline: none;
+    border-color: #4285f4;
+    box-shadow: 0px 0px 5px rgba(66, 133, 244, 0.5);
 }
 
-.registerform textarea{
-    min-width: 500px;
-    min-height: 200px;
-    resize: none;
+.registerform textarea {
+    min-height: 120px;
+    resize: vertical;
 }
+
 .registerform button[type="submit"] {
-    padding: 10px 20px;
-    background-color: #333;
+    padding: 12px 20px;
+    background-color: #4285f4;
     color: #fff;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     font-size: 1em;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-#submitbutton{
+
+.registerform button[type="submit"]:hover {
+    background-color: #3578e5;
+}
+
+#submitbutton {
     display: flex;
     justify-content: center;
-    
-
-}
-#submitbutton button{
-    background: linear-gradient(180deg, #4285f4, #ea4335);
-}
-.registerform button[type="submit"]:hover {
-    background-color: #555;
+    margin-top: 20px;
 }
 #overlay {
     position: fixed; 
@@ -227,4 +221,33 @@ header {
 #logout-button:hover {
     background-color: #fff;
     color: #ea4335;
+}
+.footer {
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;
+    border-top: 1px solid #cbd0dd;
+    border-left: 1px solid #cbd0dd;
+    font-size: 14px; 
+    align-items: center;
+    display: flex;
+    background-color: #fff;
+    justify-content: space-between;
+}
+.footer p{
+    padding: 0 1.3rem 0 1.3rem;
+    font-weight: 100;
+    color: rgb(49, 55, 74);
+
+}
+.footer a{
+    color: #3874ff;
+    text-decoration: none;
+    font-weight: 100;
+}
+footer a:hover{
+    text-decoration: underline;
+}
+.position-absolute {
+    position: absolute !important;
 }

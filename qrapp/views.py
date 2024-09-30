@@ -5,10 +5,14 @@ from .models import FailedLoginAttempts, Register
 from django.contrib.auth import authenticate, login
 import uuid
 import json
-from django.http import JsonResponse 
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import pytz
 from datetime import datetime
+from django.utils import timezone
+from openpyxl import Workbook
+from io import BytesIO 
+from phonenumbers import format_number, PhoneNumberFormat, parse, NumberParseException
 
 MAX_FAILED_ATTEMPTS = 3
 
@@ -88,22 +92,22 @@ def createvisitor(request):
             purpose = selected_purpose 
         print(purpose)
         try:
-            indian_timezone = pytz.timezone('Asia/Kolkata') 
-            current_time_in_india = datetime.now(indian_timezone)
+
             visitor = Register(
                 person_name=person_name,
                 phone_no=person_phone,
                 purpose_of_visit=purpose,
-                visite_time=current_time_in_india
+                visite_time=timezone.now() 
             )
             visitor.save()
+            visit_time_local = visitor.visite_time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S')
             return JsonResponse({
                 'success': True,
                 'visitor_data': {
                     'name': visitor.person_name,
                     'phone': str(visitor.phone_no),
                     'visit_id': visitor.visit_id,
-                    'visit_time': visitor.visite_time.strftime('%Y-%m-%d %H:%M:%S') 
+                    'visit_time': visit_time_local
                 },
                 'message': 'Visitor registered successfully!'
             })
@@ -133,10 +137,8 @@ def update_time(request):
                     try:
                         print(visit_id)
                         visitor = Register.objects.get(visit_id=visit_id)
-                        indian_timezone = pytz.timezone('Asia/Kolkata') 
-                        current_time_in_india = datetime.now(indian_timezone)
                         if visitor.return_time is None:
-                            visitor.return_time = current_time_in_india
+                            visitor.return_time = timezone.localtime()
                             visitor.save()
                             return JsonResponse({'success': True, 'message': 'Return time updated successfully!'})
                         else:
@@ -166,13 +168,23 @@ def get_visitors(request):
 
         register_data = []
         for register in registers:
+            visit_time_local = register.visite_time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S')
+            if register.return_time:
+                return_local_time=register.return_time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                return_local_time="Not updated"
+            if register.phone_no:
+                phone_number=format_number(
+                    register.phone_no, 
+                    PhoneNumberFormat.NATIONAL
+                ).lstrip('0').strip() 
             register_data.append({
                 'visit_id': register.visit_id,
                 'person_name': register.person_name,
-                'phone_no': str(register.phone_no),
+                'phone_no': phone_number,
                 'purpose_of_visit': register.purpose_of_visit,
-                'visite_time': register.visite_time.isoformat(),
-                'return_time': register.return_time if register.return_time else "Not updated"
+                'visite_time': visit_time_local,
+                'return_time': return_local_time
             })
 
         return JsonResponse({'success': True, 'register_data': register_data})
@@ -183,3 +195,70 @@ def get_visitors(request):
 def handler404(request, exception):
     print("404 handler reached2")
     return render(request, '404.html', status=404)
+
+@login_required(login_url='adminlogin')  
+@csrf_exempt
+def download_overall_report(request):
+    if request.method == 'POST':
+        try:
+            registers = Register.objects.all()
+            
+            register_data = []
+            for register in registers:
+                visit_time_local = register.visite_time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S')
+                if register.return_time:
+                    return_local_time=register.return_time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S')
+                else:
+                    return_local_time="Not updated"
+                if register.phone_no:
+                    phone_number=format_number(
+                        register.phone_no, 
+                        PhoneNumberFormat.NATIONAL
+                    ).lstrip('0').strip() 
+                register_data.append({
+                    'visit_id': register.visit_id,
+                    'person_name': register.person_name,
+                    'phone_no': phone_number,
+                    'purpose_of_visit': register.purpose_of_visit,
+                    'visite_time': visit_time_local,
+                    'return_time': return_local_time
+                })
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Registers Data" 
+            headers = [
+                'Visit ID',
+                'Person Name',
+                'Phone Number',
+                'Purpose of Visit',
+                'Visit Time',
+                'Return Time',
+            ]
+            for col_num, header in enumerate(headers, 1):  
+                ws.cell(row=1, column=col_num, value=header)
+                ws.column_dimensions[chr(ord('A') + col_num - 1)].width = 20 
+            for row_num, register in enumerate(register_data, 2):  
+                ws.cell(row=row_num, column=1, value=register['visit_id'])
+                ws.cell(row=row_num, column=2, value=register['person_name'])
+                ws.cell(row=row_num, column=3, value=register['phone_no'])
+                ws.cell(row=row_num, column=4, value=register['purpose_of_visit'])
+                ws.cell(row=row_num, column=5, value=register['visite_time'])
+                ws.cell(row=row_num, column=6, value=register['return_time'])                
+            output = BytesIO()
+            wb.save(output)  
+            output.seek(0) 
+
+            response = HttpResponse(
+                output.read(),
+                content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+            response['Content-Disposition'] = 'attachment; filename=All_Registers_Report.xlsx'
+
+            return response
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
+
+        except Exception as e: 
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=500)
+    else:
+        return JsonResponse({'error': 'Method not allowed. Use POST.'}, status=405)

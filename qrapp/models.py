@@ -1,6 +1,6 @@
 from django.db import models
 import uuid
-
+from django.utils import timezone
 
 from phonenumbers import (
     PhoneNumber,
@@ -58,7 +58,7 @@ class Register(models.Model):
     person_name = models.CharField(max_length=100, null=True)
     phone_no = PhoneNumberField(max_length=15, region='IN', null=True)
     purpose_of_visit = models.TextField(null=True, blank=True)
-    visit_id = models.CharField(unique=True, editable=False, default=uuid.uuid4)
+    visit_id = models.CharField(unique=True, editable=False, default=uuid.uuid4,max_length=100)
 
     def save(self, *args, **kwargs):
         if not self.visit_id:
