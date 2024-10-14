@@ -35,8 +35,7 @@ def adminlogin(request):
     if request.method == 'POST':
         device_id = get_device_id(request)
         if is_device_blocked(device_id):
-            return render(request, 'adminlogin.html', {'blocked': True, 
-                                                        'error_message': 'Your device is permanently blocked due to multiple failed login attempts.'})
+            return render(request, 'adminlogin.html', {'blocked': True,'error_message': 'Your device is permanently blocked due to multiple failed login attempts.'})
 
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -58,8 +57,7 @@ def adminlogin(request):
                 if failed_attempt.attempts >= MAX_FAILED_ATTEMPTS:
                     failed_attempt.is_active = True
                     failed_attempt.save()
-                    return render(request, 'adminlogin.html', {'blocked': True, 
-                                                            'error_message': 'Your device is permanently blocked due to multiple failed login attempts.'})
+                    return render(request, 'adminlogin.html', {'blocked': True, 'error_message': 'Your device is permanently blocked due to multiple failed login attempts.'})
             else:
                 failed_attempt.attempts = 1
                 failed_attempt.save()
