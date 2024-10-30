@@ -171,7 +171,7 @@
         visitors.forEach(visitor => {
             tableHTML += `<tr><td>${visitor.visit_id}</td><td>${visitor.person_name}</td><td>${visitor.phone_no}</td><td>${visitor.purpose_of_visit}</td><td>${visitor.visite_time}</td><td>${visitor.return_time}</td></tr>`;
         });
-        tableHTML += '</tbody></table> <p id="noResults" style="display: none;font-size: 14px;text-align: center;">No results found...!</p>';
+        tableHTML += '</tbody></table> <p id="noResults" style="display: none;font-size: 14px;text-align: center;background-color: rgba(255, 255, 255, 0.8);margin:0px;padding:15px;border-radius:8px;">No results found...!</p>';
         tableDiv.innerHTML = tableHTML;
     }
     function downloadOverallReport() {
@@ -206,21 +206,22 @@
     } 
     function filterVisitors() {
         const selectedDate = document.getElementById('filterDate').value;
+        console.log(selectedDate); 
         const tableRows = document.querySelectorAll('#visitorTable tbody tr');
         const noResultsMessage = document.getElementById('noResults');
         let hasVisibleRow = false;
         tableRows.forEach(row => {
-            const visitDate = row.querySelector('td:nth-child(5)');
+            const visitDate = row.querySelector('td:nth-child(5)').textContent.toLowerCase().replace(/\s+/g, '').trim();
             if (visitDate) {
-                const technicianField = visitDate.textContent.replace(/\s+/g, '').trim();
-                if (selectedDate === '' || technicianField === selectedDate) {
+                const cleanSearchText = selectedDate.toLowerCase().replace(/\s+/g, '').trim();
+                if (visitDate.includes(cleanSearchText)) {
                     row.style.display = '';
                     hasVisibleRow = true;
                 } else {
                     row.style.display = 'none';
                 }
             } else {
-                console.warn('Missing technician field cell in row:', row);
+                console.warn('Missing date field cell in row:', row);
             }
         });
 
