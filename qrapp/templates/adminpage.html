@@ -88,6 +88,9 @@
             <button onclick="hideOverlay()" id="closebutton">Close</button>
         </div>
     </div>
+    <div id="loading-spinner" class="spinner-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
 </body>
 
 <script>
@@ -145,12 +148,14 @@ function hideOverlay() {
         document.getElementById('loading-overlay').style.display = 'block';
 
         const formData = new FormData(event.target);
+        showSpinner();
         fetch(event.target.action, {
             method: event.target.method,
             body: formData
         })
         .then(response => response.json())
         .then(data => {
+            hideSpinner();
             document.getElementById('loading-overlay').style.display = 'none';
 
             if (data.success) {
@@ -161,6 +166,7 @@ function hideOverlay() {
             }
         })
         .catch(error => {
+            hideSpinner();
             console.error('Error:', error);
             document.getElementById('loading-overlay').style.display = 'none';
             alert('An error occurred. Please try again later.');

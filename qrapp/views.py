@@ -199,8 +199,14 @@ def handler404(request, exception):
 def download_overall_report(request):
     if request.method == 'POST':
         try:
-            registers = Register.objects.all()
-            
+            data=json.loads(request.body)
+            selected_date=data.get('selected_date')
+            if selected_date:
+                registers = Register.objects.filter(visite_time__date=selected_date)
+            else:
+                registers = Register.objects.all()
+            if not registers.exists():
+                return JsonResponse({'error': 'No records found for the selected date.'}, status=404)
             register_data = []
             for register in registers:
                 visit_time_local = register.visite_time.astimezone(timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S')
@@ -246,11 +252,16 @@ def download_overall_report(request):
             wb.save(output)  
             output.seek(0) 
 
+            if selected_date:
+                filename = f"Registers_Report_{selected_date}.xlsx"
+            else:
+                filename = f"{selected_date}_Registers_Report.xlsx"
+
             response = HttpResponse(
                 output.read(),
                 content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            response['Content-Disposition'] = 'attachment; filename=All_Registers_Report.xlsx'
+            response['Content-Disposition'] = f'attachment; filename={filename}'
 
             return response
         except json.JSONDecodeError:
